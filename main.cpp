@@ -2,7 +2,10 @@
 #include <fstream>
 #include <cstring>
 #include <string>
-
+#include <iomanip>
+#include <algorithm>
+#include <vector>
+#include <limits>
 using namespace std;
 
 // 1. CAU TRUC DU LIEU MAT HANG
