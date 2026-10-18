@@ -33,6 +33,28 @@ struct MatHang {
     }
 };
 int main() {
+	
+	
+	int choice = -1;
+    do {
+        cout << "\n=======================================================\n";
+        cout << "   HE THONG QUAN LY HANG TON KHO & DOANH THU SIEU THI   \n";
+        cout << "=======================================================\n";
+        cout << "1. Xem danh sach tat ca mat hang\n";
+        cout << "2. Them mat hang moi\n";
+        cout << "3. Cap nhat/Sua thong tin mat hang\n";
+        cout << "4. Xoa mat hang khoi he thong\n";
+        cout << "5. Nhap kho (Tang so luong ton)\n";
+        cout << "6. Xuat kho / Ban hang (Cap nhat Doanh thu)\n";
+        cout << "7. Canh bao hang ton kho duoi/bang muc toi thieu\n";
+        cout << "8. Tra cuu mat hang theo khoang (Range Search)\n";
+        cout << "9. Thong ke Doanh thu & Loi nhuan\n";
+        cout << "10. Canh bao mat hang sap het HSD\n";
+        cout << "11. Xem Top 3 mat hang doanh thu cao nhat\n";
+        cout << "0. Luu & Thoat chuong trinh\n";
+        cout << "-------------------------------------------------------\n";
+        cout << "Nhap lua chon cua ban (0-11): ";
+        
   return 0;
 }
 
