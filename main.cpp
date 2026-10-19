@@ -74,6 +74,106 @@ void updateHeight(NodeAVL* node) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Minh Thien gui phan cac thao tac tren cay AVL
+NodeAVL* insertNode(NodeAVL* node, const MatHang& item) {
+    if (!node) return new NodeAVL(item);
+
+    int cmp = strcmp(item.maMH, node->data.maMH);
+    if (cmp < 0) node->left = insertNode(node->left, item);
+    else if (cmp > 0) node->right = insertNode(node->right, item);
+    else {
+        cout << "Loi: Ma mat hang " << item.maMH << " da ton tai!\n";
+        return node;
+    }
+    return balanceNode(node);
+}
+
+NodeAVL* findMinNode(NodeAVL* node) {
+    NodeAVL* current = node;
+    while (current && current->left != nullptr) current = current->left;
+    return current;
+}
+
+NodeAVL* deleteNode(NodeAVL* node, const char* maMH) {
+    if (!node) return nullptr;
+
+    int cmp = strcmp(maMH, node->data.maMH);
+    if (cmp < 0) node->left = deleteNode(node->left, maMH);
+    else if (cmp > 0) node->right = deleteNode(node->right, maMH);
+    else {
+        if (!node->left || !node->right) {
+            NodeAVL* temp = node->left ? node->left : node->right;
+            if (!temp) {
+                temp = node;
+                node = nullptr;
+            } else {
+                *node = *temp; 
+            }
+            delete temp;
+        } else {
+            NodeAVL* temp = findMinNode(node->right);
+            node->data = temp->data;
+            node->right = deleteNode(node->right, temp->data.maMH);
+        }
+    }
+    
+    if (!node) return nullptr;
+    return balanceNode(node);
+}
+
+NodeAVL* searchNode(NodeAVL* root, const char* maMH) {
+    if (!root || strcmp(root->data.maMH, maMH) == 0) return root;
+    if (strcmp(maMH, root->data.maMH) < 0) return searchNode(root->left, maMH);
+    return searchNode(root->right, maMH);
+}
+
+void deleteTree(NodeAVL* root) {
+    if (root) {
+        deleteTree(root->left);
+        deleteTree(root->right);
+        delete root;
+    }
+}
+
+
+
+
+
 int main() {
 	
 	
