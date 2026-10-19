@@ -37,7 +37,20 @@ struct MatHang {
 
 
 
+// Phan Ngoc Quy up code CAU TRUC NUT CAY AVL
+struct NodeAVL {
+    MatHang data;
+    NodeAVL* left;
+    NodeAVL* right;
+    int height;
 
+    NodeAVL(const MatHang& item) {
+        data = item;
+        left = nullptr;
+        right = nullptr;
+        height = 1;
+    }
+};
 
 
 
@@ -68,7 +81,45 @@ void updateHeight(NodeAVL* node) {
     }
 }
 
+// Ngoc Quy up BON PHEP QUAY CAN BANG CAY AVL (LL, RR, LR, RL)
+NodeAVL* rotateRight(NodeAVL* y) {
+    NodeAVL* x = y->left;
+    NodeAVL* T2 = x->right;
+    x->right = y;
+    y->left = T2;
+    updateHeight(y);
+    updateHeight(x);
+    return x;
+}
 
+NodeAVL* rotateLeft(NodeAVL* x) {
+    NodeAVL* y = x->right;
+    NodeAVL* T2 = y->left;
+    y->left = x;
+    x->right = T2;
+    updateHeight(x);
+    updateHeight(y);
+    return y;
+}
+
+NodeAVL* balanceNode(NodeAVL* node) {
+    if (!node) return nullptr;
+    
+    updateHeight(node);
+    int bf = getBalanceFactor(node);
+
+    if (bf > 1 && getBalanceFactor(node->left) >= 0) return rotateRight(node);
+    if (bf > 1 && getBalanceFactor(node->left) < 0) {
+        node->left = rotateLeft(node->left);
+        return rotateRight(node);
+    }
+    if (bf < -1 && getBalanceFactor(node->right) <= 0) return rotateLeft(node);
+    if (bf < -1 && getBalanceFactor(node->right) > 0) {
+        node->right = rotateRight(node->right);
+        return rotateLeft(node);
+    }
+    return node;
+}
 
 
 
