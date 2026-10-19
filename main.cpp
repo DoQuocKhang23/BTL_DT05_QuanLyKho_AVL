@@ -32,6 +32,48 @@ struct MatHang {
         hanSuDungNgay = 0;
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Minh Thien gui bai Cac ham bo tro AVL
+int getHeight(NodeAVL* node) {
+    return node ? node->height : 0;
+}
+
+int getBalanceFactor(NodeAVL* node) {
+    return node ? getHeight(node->left) - getHeight(node->right) : 0;
+}
+
+void updateHeight(NodeAVL* node) {
+    if (node) {
+        node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+    }
+}
+
+
+
+
+
+
+
 int main() {
 	
 	
