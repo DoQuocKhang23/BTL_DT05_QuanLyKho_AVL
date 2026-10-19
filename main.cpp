@@ -52,6 +52,7 @@ struct MatHang {
 
 
 
+
 // Minh Thien gui bai Cac ham bo tro AVL
 int getHeight(NodeAVL* node) {
     return node ? node->height : 0;
@@ -66,7 +67,6 @@ void updateHeight(NodeAVL* node) {
         node->height = 1 + max(getHeight(node->left), getHeight(node->right));
     }
 }
-
 
 
 
