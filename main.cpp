@@ -37,7 +37,20 @@ struct MatHang {
 
 
 
+// Phan Ngoc Quy up code CAU TRUC NUT CAY AVL
+struct NodeAVL {
+    MatHang data;
+    NodeAVL* left;
+    NodeAVL* right;
+    int height;
 
+    NodeAVL(const MatHang& item) {
+        data = item;
+        left = nullptr;
+        right = nullptr;
+        height = 1;
+    }
+};
 
 
 
