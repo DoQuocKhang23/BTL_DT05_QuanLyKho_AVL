@@ -223,34 +223,88 @@ void deleteTree(NodeAVL* root) {
 
 
 
+// Phu Quoc nop THAO TAC DOC / GHI FILE NHI PHAN
+void writeNodeToFile(NodeAVL* node, ofstream& outFile) {
+    if (!node) return;
+    outFile.write(node->data.maMH, sizeof(node->data.maMH));
+    outFile.write(node->data.tenMH, sizeof(node->data.tenMH));
+    outFile.write(reinterpret_cast<char*>(&node->data.soLuongTon), sizeof(int));
+    outFile.write(reinterpret_cast<char*>(&node->data.tonToiThieu), sizeof(int));
+    outFile.write(reinterpret_cast<char*>(&node->data.giaNhap), sizeof(double));
+    outFile.write(reinterpret_cast<char*>(&node->data.giaBan), sizeof(double));
+    outFile.write(reinterpret_cast<char*>(&node->data.doanhThu), sizeof(double));
+    outFile.write(reinterpret_cast<char*>(&node->data.tongChiPhiNhap), sizeof(double));
+    outFile.write(reinterpret_cast<char*>(&node->data.hanSuDungNgay), sizeof(int));
+    
+    writeNodeToFile(node->left, outFile);
+    writeNodeToFile(node->right, outFile);
+}
 
+void saveToFile(NodeAVL* root, const char* filename) {
+    ofstream outFile(filename, ios::binary | ios::trunc);
+    if (!outFile) {
+        cout << "Loi: Khong the mo file de ghi!\n";
+        return;
+    }
+    
+    // Ghi Magic Header kiem tra phien ban
+    outFile.write(FILE_HEADER_MAGIC, sizeof(FILE_HEADER_MAGIC));
+    
+    writeNodeToFile(root, outFile);
+    
+    if (!outFile) {
+        cout << "Loi: Co loi xay ra trong qua trinh ghi file du lieu!\n";
+    } else {
+        cout << "Luu du lieu vao file nhi phan thanh cong!\n";
+    }
+    outFile.close();
+}
 
+NodeAVL* loadFromFile(NodeAVL* root, const char* filename) {
+    ifstream inFile(filename, ios::binary);
+    if (!inFile) {
+        cout << "Khong tim thay file du lieu cu. Tao kho hang moi!\n";
+        return root;
+    }
 
+    // Kiem tra Magic Header phien ban (Dung strncmp de tranh loi doc tran bo nho)
+    char header[sizeof(FILE_HEADER_MAGIC)];
+    inFile.read(header, sizeof(header));
+    if (inFile.gcount() != sizeof(header) || strncmp(header, FILE_HEADER_MAGIC, sizeof(FILE_HEADER_MAGIC) - 1) != 0) {
+        cout << "CANH BAO: File .dat thuoc phien ban cu hoac khong dung dinh dang!\n";
+        cout << "Tu dong khoi tao kho hang moi de tranh doc so rac.\n";
+        inFile.close();
+        return root;
+    }
 
+    MatHang item;
+    int count = 0;
+    while (true) {
+        inFile.read(item.maMH, sizeof(item.maMH));
+        if (inFile.gcount() != sizeof(item.maMH)) break;
+        
+        inFile.read(item.tenMH, sizeof(item.tenMH));
+        inFile.read(reinterpret_cast<char*>(&item.soLuongTon), sizeof(int));
+        inFile.read(reinterpret_cast<char*>(&item.tonToiThieu), sizeof(int));
+        inFile.read(reinterpret_cast<char*>(&item.giaNhap), sizeof(double));
+        inFile.read(reinterpret_cast<char*>(&item.giaBan), sizeof(double));
+        inFile.read(reinterpret_cast<char*>(&item.doanhThu), sizeof(double));
+        inFile.read(reinterpret_cast<char*>(&item.tongChiPhiNhap), sizeof(double));
+        inFile.read(reinterpret_cast<char*>(&item.hanSuDungNgay), sizeof(int));
+        
+        if (!inFile) break;
+        root = insertNode(root, item);
+        count++;
+    }
+    inFile.close();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    if (count > 0) {
+        cout << "Tai du lieu tu file nhi phan thanh cong (" << count << " mat hang)!\n";
+    } else {
+        cout << "File du lieu rong. Kho hang hien tai trong!\n";
+    }
+    return root;
+}
 
 
 
