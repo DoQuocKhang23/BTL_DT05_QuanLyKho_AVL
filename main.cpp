@@ -225,6 +225,167 @@ void deleteTree(NodeAVL* root) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Ung Gia Hao nop hien thi du lieu và tinh nang nghiep vu
+void printHeader() {
+    cout << left << setw(10) << "Ma MH"
+         << setw(25) << "Ten Mat Hang"
+         << setw(10) << "Ton Kho"
+         << setw(10) << "Ton Min"
+         << setw(12) << "Gia Nhap"
+         << setw(12) << "Gia Ban"
+         << setw(15) << "Doanh Thu"
+         << setw(10) << "HSD(ngay)" << "\n";
+    cout << string(104, '-') << "\n"; // Da can chinh vua van 104 ky tu
+}
+
+void printItem(const MatHang& item) {
+    cout << left << setw(10) << item.maMH
+         << setw(25) << item.tenMH
+         << setw(10) << item.soLuongTon
+         << setw(10) << item.tonToiThieu;
+
+    cout << fixed << setprecision(0)
+         << setw(12) << item.giaNhap
+         << setw(12) << item.giaBan
+         << setw(15) << item.doanhThu;
+
+    cout.unsetf(ios::fixed);
+    cout << setprecision(6)
+         << setw(10) << item.hanSuDungNgay << "\n";
+}
+
+void displayInOrder(NodeAVL* root) {
+    if (!root) return;
+    displayInOrder(root->left);
+    printItem(root->data);
+    displayInOrder(root->right);
+}
+
+void rangeSearchMaMH(NodeAVL* root, const char* minMa, const char* maxMa, bool& found) {
+    if (!root) return;
+
+    int cmpMin = strcmp(minMa, root->data.maMH);
+    int cmpMax = strcmp(maxMa, root->data.maMH);
+
+    if (cmpMin < 0) {
+        rangeSearchMaMH(root->left, minMa, maxMa, found);
+    }
+
+    if (cmpMin <= 0 && cmpMax >= 0) {
+        printItem(root->data);
+        found = true;
+    }
+
+    if (cmpMax > 0) {
+        rangeSearchMaMH(root->right, minMa, maxMa, found);
+    }
+}
+
+void rangeSearchGiaBan(NodeAVL* root, double minGia, double maxGia, bool& found) {
+    if (!root) return;
+
+    rangeSearchGiaBan(root->left, minGia, maxGia, found);
+    
+    if (root->data.giaBan >= minGia && root->data.giaBan <= maxGia) {
+        printItem(root->data);
+        found = true;
+    }
+    
+    rangeSearchGiaBan(root->right, minGia, maxGia, found);
+}
+
+void canhBaoTonKho(NodeAVL* root, bool& found) {
+    if (!root) return;
+    canhBaoTonKho(root->left, found);
+    if (root->data.soLuongTon <= root->data.tonToiThieu) {
+        printItem(root->data);
+        found = true;
+    }
+    canhBaoTonKho(root->right, found);
+}
+
+void canhBaoHanSuDung(NodeAVL* root, int ngatHSD, bool& found) {
+    if (!root) return;
+    canhBaoHanSuDung(root->left, ngatHSD, found);
+    if (root->data.hanSuDungNgay <= ngatHSD) {
+        printItem(root->data);
+        found = true;
+    }
+    canhBaoHanSuDung(root->right, ngatHSD, found);
+}
+
+void thongKeTaiChinh(NodeAVL* root, double& tongDoanhThu, double& tongVon) {
+    if (!root) return;
+    thongKeTaiChinh(root->left, tongDoanhThu, tongVon);
+    tongDoanhThu += root->data.doanhThu;
+    tongVon += root->data.tongChiPhiNhap;
+    thongKeTaiChinh(root->right, tongDoanhThu, tongVon);
+}
+
+void collectNodes(NodeAVL* root, vector<MatHang>& list) {
+    if (!root) return;
+    collectNodes(root->left, list);
+    list.push_back(root->data);
+    collectNodes(root->right, list);
+}
+
+bool soSanhDoanhThuGiamDan(const MatHang& a, const MatHang& b) {
+    return a.doanhThu > b.doanhThu;
+}
+
+void topDoanhThu(NodeAVL* root) {
+    vector<MatHang> list;
+    collectNodes(root, list);
+    if (list.empty()) {
+        cout << "Kho hang trong!\n";
+        return;
+    }
+    
+    sort(list.begin(), list.end(), soSanhDoanhThuGiamDan);
+
+    cout << "\n=== TOP MAT HANG CO DOANH THU CAO NHAT ===\n";
+    printHeader();
+    int count = min((int)list.size(), 3);
+    for (int i = 0; i < count; i++) printItem(list[i]);
+}
+
+
+
+
+
+
 int main() {
 	
 	
