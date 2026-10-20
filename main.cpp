@@ -6,7 +6,11 @@
 #include <algorithm>
 #include <vector>
 #include <limits>
+
 using namespace std;
+
+// Header danh dau phien ban cau truc du lieu nhi phan (chong doc file .dat cu gay loi so rac)
+const char FILE_HEADER_MAGIC[] = "KHO_v2";
 
 // 1. CAU TRUC DU LIEU MAT HANG
 struct MatHang {
@@ -33,10 +37,6 @@ struct MatHang {
     }
 };
 
-
-
-
-
 // Phan Ngoc Quy up code CAU TRUC NUT CAY AVL
 struct NodeAVL {
     MatHang data;
@@ -51,20 +51,6 @@ struct NodeAVL {
         height = 1;
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Minh Thien gui bai Cac ham bo tro AVL
 int getHeight(NodeAVL* node) {
@@ -120,45 +106,6 @@ NodeAVL* balanceNode(NodeAVL* node) {
     }
     return node;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //Minh Thien gui phan cac thao tac tren cay AVL
 NodeAVL* insertNode(NodeAVL* node, const MatHang& item) {
@@ -220,8 +167,6 @@ void deleteTree(NodeAVL* root) {
         delete root;
     }
 }
-
-
 
 // Phu Quoc nop THAO TAC DOC / GHI FILE NHI PHAN
 void writeNodeToFile(NodeAVL* node, ofstream& outFile) {
@@ -305,11 +250,6 @@ NodeAVL* loadFromFile(NodeAVL* root, const char* filename) {
     }
     return root;
 }
-
-
-
-
-
 
 //Ung Gia Hao nop hien thi du lieu và tinh nang nghiep vu
 void printHeader() {
@@ -435,13 +375,17 @@ void topDoanhThu(NodeAVL* root) {
     for (int i = 0; i < count; i++) printItem(list[i]);
 }
 
-
-
-
-
+// TIEN ICH DON BO DEM
+void clearBuffer() {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
 
 int main() {
-	
+	 NodeAVL* root = nullptr;
+    const char* filename = "danh_muc_kho.dat";
+
+    root = loadFromFile(root, filename);
 	
 	int choice = -1;
     do {
@@ -463,6 +407,313 @@ int main() {
         cout << "-------------------------------------------------------\n";
         cout << "Nhap lua chon cua ban (0-11): ";
         
+        if (!(cin >> choice)) {
+            clearBuffer();
+            if (cin.eof()) {
+                cout << "\nPhat hien ket thuc luong nhap (EOF). Dang thoat chuong trinh...\n";
+                saveToFile(root, filename);
+                deleteTree(root);
+                choice = 0;
+                break;
+            }
+            cout << "Loi: Vui long nhap so nguyen hop le!\n";
+            continue;
+        }
+
+        switch (choice) {
+            case 1: {
+                if (!root) cout << "Kho hang hien dang trong!\n";
+                else {
+                    cout << "\n=== DANH SACH MAT HANG TRONG KHO ===\n";
+                    printHeader();
+                    displayInOrder(root);
+                }
+                break;
+            }
+            case 2: {
+                MatHang item;
+                cout << "Nhap ma MH (toi da 14 ky tu): "; 
+                cin.width(15);
+                if (!(cin >> item.maMH)) { clearBuffer(); break; }
+                clearBuffer();
+                
+                if (searchNode(root, item.maMH) != nullptr) {
+                    cout << "Loi: Ma mat hang " << item.maMH << " da ton tai!\n";
+                    break;
+                }
+
+                cout << "Nhap ten MH (<50 ki tu): "; 
+                cin.getline(item.tenMH, 50);
+                if (cin.fail()) clearBuffer(); 
+
+                cout << "Nhap so luong ton ban dau: "; 
+                if (!(cin >> item.soLuongTon) || item.soLuongTon < 0) { 
+                    cout << "Loi: So luong ton phai la so nguyen >= 0!\n"; 
+                    clearBuffer(); break; 
+                }
+
+                cout << "Nhap nguong ton toi thieu: "; 
+                if (!(cin >> item.tonToiThieu) || item.tonToiThieu < 0) { 
+                    cout << "Loi: Ton toi thieu phai >= 0!\n"; 
+                    clearBuffer(); break; 
+                }
+
+                cout << "Nhap gia nhap (nghin dong): "; 
+                if (!(cin >> item.giaNhap) || item.giaNhap <= 0) { 
+                    cout << "Loi: Gia nhap phai > 0!\n"; 
+                    clearBuffer(); break; 
+                }
+
+                cout << "Nhap gia ban (nghin dong): "; 
+                if (!(cin >> item.giaBan) || item.giaBan <= 0) { 
+                    cout << "Loi: Gia ban phai > 0!\n"; 
+                    clearBuffer(); break; 
+                }
+
+                cout << "Nhap so ngay con lai cua HSD: "; 
+                if (!(cin >> item.hanSuDungNgay) || item.hanSuDungNgay < 0) { 
+                    cout << "Loi: So ngay HSD phai >= 0!\n"; 
+                    clearBuffer(); break; 
+                }
+
+                item.doanhThu = 0.0;
+                item.tongChiPhiNhap = item.soLuongTon * item.giaNhap; // Tich luy von ban dau
+                root = insertNode(root, item);
+                cout << "Them mat hang thanh cong!\n";
+                break;
+            }
+            case 3: {
+                char ma[15];
+                cout << "Nhap ma MH can sua: "; cin.width(15); 
+                if (!(cin >> ma)) { clearBuffer(); break; }
+                clearBuffer();
+
+                NodeAVL* target = searchNode(root, ma);
+                if (!target) {
+                    cout << "Khong tim thay mat hang co ma: " << ma << "\n";
+                } else {
+                    string input;
+
+                    // 1. Sua Ten
+                    cout << "Nhap ten MH moi (bo trong neu giu nguyen): "; 
+                    getline(cin, input);
+                    if (!input.empty()) {
+                        strncpy(target->data.tenMH, input.c_str(), sizeof(target->data.tenMH) - 1);
+                        target->data.tenMH[sizeof(target->data.tenMH) - 1] = '\0';
+                    }
+
+                    // 2. Sua Gia Nhap
+                    cout << "Nhap gia nhap moi (bo trong neu giu nguyen): ";
+                    getline(cin, input);
+                    if (!input.empty()) {
+                        try { 
+                            double val = stod(input);
+                            if (val > 0) target->data.giaNhap = val;
+                            else cout << "-> Gia nhap phai > 0! Giu nguyen gia tri cu.\n";
+                        } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
+                    }
+
+                    // 3. Sua Gia Ban
+                    cout << "Nhap gia ban moi (bo trong neu giu nguyen): ";
+                    getline(cin, input);
+                    if (!input.empty()) {
+                        try { 
+                            double val = stod(input);
+                            if (val > 0) target->data.giaBan = val;
+                            else cout << "-> Gia ban phai > 0! Giu nguyen gia tri cu.\n";
+                        } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
+                    }
+
+                    // 4. Sua Ton Toi Thieu
+                    cout << "Nhap nguong ton toi thieu moi (bo trong neu giu nguyen): ";
+                    getline(cin, input);
+                    if (!input.empty()) {
+                        try { 
+                            int val = stoi(input);
+                            if (val >= 0) target->data.tonToiThieu = val;
+                            else cout << "-> Ton toi thieu phai >= 0! Giu nguyen gia tri cu.\n";
+                        } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
+                    }
+
+                    // 5. Sua HSD
+                    cout << "Nhap HSD (ngay) moi (bo trong neu giu nguyen): ";
+                    getline(cin, input);
+                    if (!input.empty()) {
+                        try { 
+                            int val = stoi(input);
+                            if (val >= 0) target->data.hanSuDungNgay = val;
+                            else cout << "-> HSD phai >= 0! Giu nguyen gia tri cu.\n";
+                        } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
+                    }
+
+                    cout << "Cap nhat thong tin thanh cong!\n";
+                }
+                break;
+            }
+            case 4: {
+                char ma[15];
+                cout << "Nhap ma MH can xoa: "; cin.width(15); 
+                if (!(cin >> ma)) { clearBuffer(); break; }
+                clearBuffer();
+
+                if (!searchNode(root, ma)) cout << "Khong tim thay ma MH de xoa!\n";
+                else {
+                    root = deleteNode(root, ma);
+                    cout << "Xoa mat hang thanh cong!\n";
+                }
+                break;
+            }
+            case 5: {
+                char ma[15]; int sl;
+                cout << "Nhap ma MH can nhap kho: "; cin.width(15); 
+                if (!(cin >> ma)) { clearBuffer(); break; }
+                clearBuffer();
+
+                NodeAVL* node = searchNode(root, ma);
+                if (!node) {
+                    cout << "Khong tim thay mat hang!\n";
+                } else {
+                    cout << "Nhap so luong nhap them: "; 
+                    if (!(cin >> sl)) { cout << "Loi: Nhap sai kieu so!\n"; clearBuffer(); break; }
+
+                    if (sl > 0) {
+                        node->data.soLuongTon += sl;
+                        node->data.tongChiPhiNhap += sl * node->data.giaNhap; // Tich luy them chi phi von
+                        cout << "Nhap kho thanh cong. So luong ton moi: " << node->data.soLuongTon << "\n";
+                    } else cout << "So luong nhap phai lon hon 0!\n";
+                }
+                break;
+            }
+            case 6: {
+                char ma[15]; int sl;
+                cout << "Nhap ma MH xuat kho (ban hang): "; cin.width(15); 
+                if (!(cin >> ma)) { clearBuffer(); break; }
+                clearBuffer();
+
+                NodeAVL* node = searchNode(root, ma);
+                if (!node) {
+                    cout << "Khong tim thay mat hang!\n";
+                } else {
+                    cout << "Nhap so luong xuat ban: "; 
+                    if (!(cin >> sl)) { cout << "Loi: Nhap sai kieu so!\n"; clearBuffer(); break; }
+
+                    if (sl <= 0) cout << "So luong xuat phai lon hon 0!\n";
+                    else if (sl > node->data.soLuongTon) 
+                        cout << "Loi: So luong ton kho khong du ban! (Hien co: " << node->data.soLuongTon << ")\n";
+                    else {
+                        node->data.soLuongTon -= sl;
+                        double giaTriBan = sl * node->data.giaBan;
+                        node->data.doanhThu += giaTriBan;
+                        cout << "Xuat kho thanh cong! Doanh thu cong them: " << fixed << setprecision(0) << giaTriBan << " VND\n";
+                        cout.unsetf(ios::fixed);
+                        cout << setprecision(6);
+                    }
+                }
+                break;
+            }
+            case 7: {
+                cout << "\n=== CANH BAO MAT HANG CAN NHAP THEM ===\n";
+                bool found = false; printHeader();
+                canhBaoTonKho(root, found);
+                if (!found) cout << "Khong co mat hang nao o muc canh bao.\n";
+                break;
+            }
+            case 8: {
+                int subChoice;
+                cout << "\n--- CHON KIEU TRA CUU PHAM VI (RANGE SEARCH) ---\n";
+                cout << "1. Tra cuu theo Khoang MA MAT HANG (Cat nganh AVL chuan)\n";
+                cout << "2. Tra cuu theo Khoang GIA BAN\n";
+                cout << "Chon (1-2): ";
+                
+                if (!(cin >> subChoice)) {
+                    cout << "Loi: Nhap sai kieu so!\n";
+                    clearBuffer();
+                    break;
+                }
+
+                if (subChoice == 1) {
+                    char minMa[15], maxMa[15];
+                    cout << "Nhap Ma MH bat dau: "; cin.width(15);
+                    if (!(cin >> minMa)) { clearBuffer(); break; }
+                    clearBuffer();
+
+                    cout << "Nhap Ma MH ket thuc: "; cin.width(15);
+                    if (!(cin >> maxMa)) { clearBuffer(); break; }
+                    clearBuffer();
+
+                    if (strcmp(minMa, maxMa) > 0) {
+                        cout << "Loi: Ma bat dau phai nho hon hoac bang Ma ket thuc!\n";
+                        break;
+                    }
+
+                    cout << "\n=== KET QUA TRA CUU PHAM VI MA MH [" << minMa << " - " << maxMa << "] ===\n";
+                    bool found = false; printHeader();
+                    rangeSearchMaMH(root, minMa, maxMa, found);
+                    if (!found) cout << "Khong tim thay mat hang nao trong pham vi ma nay.\n";
+
+                } else if (subChoice == 2) {
+                    double minG, maxG;
+                    cout << "Nhap gia ban thap nhat: "; 
+                    if (!(cin >> minG)) { cout << "Loi: Nhap sai kieu so!\n"; clearBuffer(); break; }
+
+                    cout << "Nhap gia ban cao nhat: "; 
+                    if (!(cin >> maxG)) { cout << "Loi: Nhap sai kieu so!\n"; clearBuffer(); break; }
+
+                    if (minG > maxG) {
+                        cout << "Loi: Gia thap nhat phai nho hon hoac bang gia cao nhat!\n";
+                        break;
+                    }
+
+                    cout << "\n=== KET QUA TRA CUU KHOANG GIA [" << minG << " - " << maxG << "] ===\n";
+                    bool found = false; printHeader();
+                    rangeSearchGiaBan(root, minG, maxG, found);
+                    if (!found) cout << "Khong tim thay mat hang nao trong khoang gia nay.\n";
+                } else {
+                    cout << "Lua chon khong hop le!\n";
+                }
+                break;
+            }
+            case 9: {
+                double tongDT = 0.0, tongVon = 0.0;
+                thongKeTaiChinh(root, tongDT, tongVon);
+                double loiNhuan = tongDT - tongVon;
+
+                cout << "\n=== THONG KE TAI CHINH SIEU THI (DONG TIEN) ===\n";
+                cout << fixed << setprecision(0);
+                cout << "1. Tong Doanh Thu (Thu ve) : " << tongDT << " VND\n";
+                cout << "2. Tong Chi Phi Von (Da chi): " << tongVon << " VND\n";
+                cout << "---------------------------------------------------\n";
+                if (loiNhuan >= 0) {
+                    cout << "-> LOI NHUAN DONG TIEN: +" << loiNhuan << " VND (Loi)\n";
+                } else {
+                    cout << "-> LOI NHUAN DONG TIEN: " << loiNhuan << " VND (Lo - do nhap hang/chua ban het)\n";
+                }
+                cout.unsetf(ios::fixed);
+                cout << setprecision(6);
+                break;
+            }
+            case 10: {
+                int ngat;
+                cout << "Nhap nguong ngay HSD can canh bao (vd: 30 ngay): "; 
+                if (!(cin >> ngat)) { cout << "Loi: Nhap sai kieu so!\n"; clearBuffer(); break; }
+
+                cout << "\n=== CANH BAO MAT HANG CAP BEN HET HAN SU DUNG ===\n";
+                bool found = false; printHeader();
+                canhBaoHanSuDung(root, ngat, found);
+                if (!found) cout << "Khong co mat hang nao sap het han su dung.\n";
+                break;
+            }
+            case 11: topDoanhThu(root); break;
+            case 0: {
+                saveToFile(root, filename);
+                deleteTree(root);
+                cout << "Cam on ban da su dung phan mem!\n";
+                break;
+            }
+            default: cout << "Lua chon khong hop le. Vui long chon lai!\n";
+        }
+    } while (choice != 0);
+
   return 0;
 }
 
