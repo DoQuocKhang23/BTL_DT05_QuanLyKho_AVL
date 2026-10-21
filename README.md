@@ -27,7 +27,7 @@ Hệ thống quản lý kho hàng và doanh thu siêu thị được viết bằ
 | **Lưu trữ dữ liệu** | File nhị phân | Lưu và khôi phục dữ liệu |
 | **Quản lý mã nguồn** | Git, GitHub | Quản lý phiên bản và phối hợp nhóm |
 | **Theo dõi tiến độ** | Trello | Phân công và giám sát công việc |
-| **Soạn thảo báo cáo** | Microsoft Word, LaTeX, PDF | Trình bày nội dung học thuật |
+| **Soạn thảo báo cáo** | Microsoft Word | Trình bày nội dung học thuật |
 | **Biên dịch và trình diễn** | Dev-C++, GCC, GDB Online | Biên dịch, kiểm thử và trình diễn chương trình |
 
 ---
