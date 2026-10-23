@@ -10,7 +10,7 @@
 using namespace std;
 
 // Header danh dau phien ban cau truc du lieu nhi phan (chong doc file .dat cu gay loi so rac)
-const char FILE_HEADER_MAGIC[] = "KHO_v2";
+const char FILE_HEADER_MAGIC[] = "KHO_v3";
 
 // 1. CAU TRUC DU LIEU MAT HANG
 struct MatHang {
@@ -21,7 +21,7 @@ struct MatHang {
     double giaNhap;         // Gia nhap vao
     double giaBan;          // Gia ban ra
     double doanhThu;        // Tong doanh thu tich luy tu ban hang
-    double tongChiPhiNhap;  // Tong chi phi von da chi ra de nhap hang
+  	double giaVonHangBan;   // Tong gia von cua cac mat hang DA BAN
     int hanSuDungNgay;      // So ngay con lai cua han su dung
 
     MatHang() {
@@ -32,12 +32,11 @@ struct MatHang {
         giaNhap = 0.0;
         giaBan = 0.0;
         doanhThu = 0.0;
-        tongChiPhiNhap = 0.0;
+       giaVonHangBan = 0.0;
         hanSuDungNgay = 0;
     }
 };
 
-// Phan Ngoc Quy up code CAU TRUC NUT CAY AVL
 struct NodeAVL {
     MatHang data;
     NodeAVL* left;
@@ -52,7 +51,6 @@ struct NodeAVL {
     }
 };
 
-// Minh Thien gui bai Cac ham bo tro AVL
 int getHeight(NodeAVL* node) {
     return node ? node->height : 0;
 }
@@ -67,7 +65,6 @@ void updateHeight(NodeAVL* node) {
     }
 }
 
-// Ngoc Quy up BON PHEP QUAY CAN BANG CAY AVL (LL, RR, LR, RL)
 NodeAVL* rotateRight(NodeAVL* y) {
     NodeAVL* x = y->left;
     NodeAVL* T2 = x->right;
@@ -107,7 +104,6 @@ NodeAVL* balanceNode(NodeAVL* node) {
     return node;
 }
 
-//Minh Thien gui phan cac thao tac tren cay AVL
 NodeAVL* insertNode(NodeAVL* node, const MatHang& item) {
     if (!node) return new NodeAVL(item);
 
@@ -168,7 +164,6 @@ void deleteTree(NodeAVL* root) {
     }
 }
 
-// Phu Quoc nop THAO TAC DOC / GHI FILE NHI PHAN
 void writeNodeToFile(NodeAVL* node, ofstream& outFile) {
     if (!node) return;
     outFile.write(node->data.maMH, sizeof(node->data.maMH));
@@ -178,7 +173,7 @@ void writeNodeToFile(NodeAVL* node, ofstream& outFile) {
     outFile.write(reinterpret_cast<char*>(&node->data.giaNhap), sizeof(double));
     outFile.write(reinterpret_cast<char*>(&node->data.giaBan), sizeof(double));
     outFile.write(reinterpret_cast<char*>(&node->data.doanhThu), sizeof(double));
-    outFile.write(reinterpret_cast<char*>(&node->data.tongChiPhiNhap), sizeof(double));
+    outFile.write(reinterpret_cast<char*>(&node->data.giaVonHangBan), sizeof(double));
     outFile.write(reinterpret_cast<char*>(&node->data.hanSuDungNgay), sizeof(int));
     
     writeNodeToFile(node->left, outFile);
@@ -234,7 +229,7 @@ NodeAVL* loadFromFile(NodeAVL* root, const char* filename) {
         inFile.read(reinterpret_cast<char*>(&item.giaNhap), sizeof(double));
         inFile.read(reinterpret_cast<char*>(&item.giaBan), sizeof(double));
         inFile.read(reinterpret_cast<char*>(&item.doanhThu), sizeof(double));
-        inFile.read(reinterpret_cast<char*>(&item.tongChiPhiNhap), sizeof(double));
+        inFile.read(reinterpret_cast<char*>(&item.giaVonHangBan), sizeof(double));
         inFile.read(reinterpret_cast<char*>(&item.hanSuDungNgay), sizeof(int));
         
         if (!inFile) break;
@@ -251,7 +246,6 @@ NodeAVL* loadFromFile(NodeAVL* root, const char* filename) {
     return root;
 }
 
-//Ung Gia Hao nop hien thi du lieu và tinh nang nghiep vu
 void printHeader() {
     cout << left << setw(10) << "Ma MH"
          << setw(25) << "Ten Mat Hang"
@@ -340,12 +334,12 @@ void canhBaoHanSuDung(NodeAVL* root, int ngatHSD, bool& found) {
     canhBaoHanSuDung(root->right, ngatHSD, found);
 }
 
-void thongKeTaiChinh(NodeAVL* root, double& tongDoanhThu, double& tongVon) {
+void thongKeTaiChinh(NodeAVL* root, double& tongDoanhThu, double& tongGiaVon) {
     if (!root) return;
-    thongKeTaiChinh(root->left, tongDoanhThu, tongVon);
+    thongKeTaiChinh(root->left, tongDoanhThu, tongGiaVon);
     tongDoanhThu += root->data.doanhThu;
-    tongVon += root->data.tongChiPhiNhap;
-    thongKeTaiChinh(root->right, tongDoanhThu, tongVon);
+    tongGiaVon += root->data.giaVonHangBan;
+    thongKeTaiChinh(root->right, tongDoanhThu, tongGiaVon);
 }
 
 void collectNodes(NodeAVL* root, vector<MatHang>& list) {
@@ -477,7 +471,7 @@ int main() {
                 }
 
                 item.doanhThu = 0.0;
-                item.tongChiPhiNhap = item.soLuongTon * item.giaNhap; // Tich luy von ban dau
+               item.giaVonHangBan = 0.0; // Chua ban gi nen gia von hang ban = 0
                 root = insertNode(root, item);
                 cout << "Them mat hang thanh cong!\n";
                 break;
@@ -578,7 +572,6 @@ int main() {
 
                     if (sl > 0) {
                         node->data.soLuongTon += sl;
-                        node->data.tongChiPhiNhap += sl * node->data.giaNhap; // Tich luy them chi phi von
                         cout << "Nhap kho thanh cong. So luong ton moi: " << node->data.soLuongTon << "\n";
                     } else cout << "So luong nhap phai lon hon 0!\n";
                 }
@@ -604,6 +597,7 @@ int main() {
                         node->data.soLuongTon -= sl;
                         double giaTriBan = sl * node->data.giaBan;
                         node->data.doanhThu += giaTriBan;
+						node->data.giaVonHangBan += sl * node->data.giaNhap; // Gia von cua so hang vua ban
                         cout << "Xuat kho thanh cong! Doanh thu cong them: " << fixed << setprecision(0) << giaTriBan << " VND\n";
                         cout.unsetf(ios::fixed);
                         cout << setprecision(6);
@@ -674,19 +668,19 @@ int main() {
                 break;
             }
             case 9: {
-                double tongDT = 0.0, tongVon = 0.0;
-                thongKeTaiChinh(root, tongDT, tongVon);
-                double loiNhuan = tongDT - tongVon;
+                double tongDT = 0.0, tongGiaVon = 0.0;
+              thongKeTaiChinh(root, tongDT, tongGiaVon);
+               double loiNhuan = tongDT - tongGiaVon; // Loi nhuan = Doanh thu - Gia von hang da ban
 
-                cout << "\n=== THONG KE TAI CHINH SIEU THI (DONG TIEN) ===\n";
+                 cout << "\n=== THONG KE LOI NHUAN SIEU THI ===\n";
                 cout << fixed << setprecision(0);
-                cout << "1. Tong Doanh Thu (Thu ve) : " << tongDT << " VND\n";
-                cout << "2. Tong Chi Phi Von (Da chi): " << tongVon << " VND\n";
+                cout << "1. Tong Doanh Thu           : " << tongDT << " VND\n";
++                cout << "2. Tong Gia Von Hang Da Ban : " << tongGiaVon << " VND\n";
                 cout << "---------------------------------------------------\n";
                 if (loiNhuan >= 0) {
-                    cout << "-> LOI NHUAN DONG TIEN: +" << loiNhuan << " VND (Loi)\n";
+                     cout << "-> LOI NHUAN: +" << loiNhuan << " VND (Loi)\n";
                 } else {
-                    cout << "-> LOI NHUAN DONG TIEN: " << loiNhuan << " VND (Lo - do nhap hang/chua ban het)\n";
+                   cout << "-> LOI NHUAN: " << loiNhuan << " VND (Lo)\n";
                 }
                 cout.unsetf(ios::fixed);
                 cout << setprecision(6);
