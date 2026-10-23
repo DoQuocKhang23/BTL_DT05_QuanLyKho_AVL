@@ -675,7 +675,7 @@ int main() {
                  cout << "\n=== THONG KE LOI NHUAN SIEU THI ===\n";
                 cout << fixed << setprecision(0);
                 cout << "1. Tong Doanh Thu           : " << tongDT << " VND\n";
-+                cout << "2. Tong Gia Von Hang Da Ban : " << tongGiaVon << " VND\n";
+               cout << "2. Tong Gia Von Hang Da Ban : " << tongGiaVon << " VND\n";
                 cout << "---------------------------------------------------\n";
                 if (loiNhuan >= 0) {
                      cout << "-> LOI NHUAN: +" << loiNhuan << " VND (Loi)\n";
