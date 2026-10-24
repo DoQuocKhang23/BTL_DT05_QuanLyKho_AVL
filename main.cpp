@@ -540,6 +540,7 @@ int main() {
                             else cout << "-> HSD phai >= 0! Giu nguyen gia tri cu.\n";
                         } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
                     }
+					//6
 					cout << "Nhap so luong ton moi (bo trong neu giu nguyen): ";
                     getline(cin, input);
                     if (!input.empty()) {
@@ -549,7 +550,7 @@ int main() {
                             else cout << "-> So luong ton phai >= 0! Giu nguyen gia tri cu.\n";
                         } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
                     }
-					/ 7. Sua Ma MH (dat CUOI CUNG vi doi ma phai xoa va chen lai nut)
+					// 7. Sua Ma MH (dat CUOI CUNG vi doi ma phai xoa va chen lai nut)
                     cout << "Nhap ma MH moi (bo trong neu giu nguyen): ";
                     getline(cin, input);
                     if (!input.empty()) {
