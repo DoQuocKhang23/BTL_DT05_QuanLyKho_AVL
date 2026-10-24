@@ -411,6 +411,7 @@ int main() {
                 break;
             }
             cout << "Loi: Vui long nhap so nguyen hop le!\n";
+			choice = -1;
             continue;
         }
 
