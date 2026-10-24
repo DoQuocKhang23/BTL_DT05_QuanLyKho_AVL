@@ -540,6 +540,15 @@ int main() {
                             else cout << "-> HSD phai >= 0! Giu nguyen gia tri cu.\n";
                         } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
                     }
+					cout << "Nhap so luong ton moi (bo trong neu giu nguyen): ";
+                    getline(cin, input);
+                    if (!input.empty()) {
+                        try { 
+                            int val = stoi(input);
+                            if (val >= 0) target->data.soLuongTon = val;
+                            else cout << "-> So luong ton phai >= 0! Giu nguyen gia tri cu.\n";
+                        } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
+                    }
 
                     cout << "Cap nhat thong tin thanh cong!\n";
                 }
