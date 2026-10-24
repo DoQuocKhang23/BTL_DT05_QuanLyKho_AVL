@@ -549,6 +549,23 @@ int main() {
                             else cout << "-> So luong ton phai >= 0! Giu nguyen gia tri cu.\n";
                         } catch (...) { cout << "-> Nhap sai kieu so! Giu nguyen gia tri cu.\n"; }
                     }
+					/ 7. Sua Ma MH (dat CUOI CUNG vi doi ma phai xoa va chen lai nut)
+                    cout << "Nhap ma MH moi (bo trong neu giu nguyen): ";
+                    getline(cin, input);
+                    if (!input.empty()) {
+                        if (input.size() > 14)
+                            cout << "-> Ma toi da 14 ky tu! Giu nguyen ma cu.\n";
+                        else if (input.find(' ') != string::npos)
+                            cout << "-> Ma khong duoc chua khoang trang! Giu nguyen ma cu.\n";
+                        else if (searchNode(root, input.c_str()) != nullptr)
+                            cout << "-> Ma " << input << " da ton tai! Giu nguyen ma cu.\n";
+                        else {
+                            MatHang tmp = target->data;
+                            strcpy(tmp.maMH, input.c_str());
+                            root = deleteNode(root, ma);
+                            root = insertNode(root, tmp);
+                        }
+                    }
 
                     cout << "Cap nhat thong tin thanh cong!\n";
                 }
